@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Chating Server</title>
+	<script src="http://code.jquery.com/jquery-1.7.1.min.js"></script>
+	<script src="/socket.io/socket.io.js"></script>
+
+</head>
+<body>
+	<ul id='message'></ul>
+	<hr>
+	<input type="hidden" name="name" value="{{ name }}">
+	<input type="text" id="chatmsg">
+	<button id ="send">send</button>
+
+	<script>
+	var name = $("[name='name']").val();
+	var socket = io.connect();
+	socket.on('connect',function(){
+		socket.on('message',function(data){
+			console.log("received:",data);
+			$('#message').append($('<li><b>'+data.name+'</b>: '+data.msg+'</li>'));
+		});
+		socket.on('disconnect',function(){
+			$('#message').append($('<li></li>').text('Disconnected'));
+		});
+	});
+	var el = $('#chatmsg');
+	$('#send').click(function(e){
+		e.preventDefault();
+		var data = {
+			name: name,
+			msg: el.val()
+		}
+		socket.send(data);
+		
+		$('#message').append($('<li><b>'+name+'</b>: '+el.val()+'</li>'));
+		el.val('');
+		
+	})
+	</script>
+
+</body>
+</html>
